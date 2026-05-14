@@ -2,80 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Random Picker</title>
+    <title>Random Picker - Neon Orange</title>
     <style>
-        /* Optional: Add some styling to make the button look good in your app */
+        /* Center the button and set a dark background so the neon glow pops */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a; /* Dark background */
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Neon Orange Glowing Button Styling */
         #randomBtn {
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 15px 30px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            background-color: #0079c1;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-family: Arial, sans-serif;
+            color: #ffffff;
+            background: transparent;
+            border: 2px solid #ff6600;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            
+            /* Neon Text Shadow */
+            text-shadow: 
+                0 0 5px #ff6600, 
+                0 0 10px #ff6600;
+            
+            /* Neon Box Shadow (Outer and Inner glow) */
+            box-shadow: 
+                0 0 5px #ff6600, 
+                0 0 15px #ff6600, 
+                inset 0 0 10px #ff6600;
+                
+            transition: all 0.3s ease;
         }
+
+        /* Intense Glow on Hover */
         #randomBtn:hover {
-            background-color: #005a90;
+            background-color: #ff6600;
+            color: #ffffff;
+            box-shadow: 
+                0 0 10px #ff6600, 
+                0 0 20px #ff6600, 
+                0 0 40px #ff6600, 
+                0 0 60px #ff6600;
+            text-shadow: none;
+        }
+        
+        /* Slight click effect */
+        #randomBtn:active {
+            transform: scale(0.95);
         }
     </style>
-    
-    <!-- This script tag is required to load the ArcGIS Maps SDK -->
-    <script src="https://js.arcgis.com/4.28/"></script>
 </head>
 <body>
 
     <button id="randomBtn">🎲 Where to Eat?</button>
 
     <script>
-        // Now that the Esri script is loaded in the <head>, "require" will work
-        require(["esri/layers/FeatureLayer"], function(FeatureLayer) {
+        // The list of late-night Santa Barbara spots hardcoded into an array
+        const restaurants = [
+            "Taqueria Mena",
+            "Casa Comal Cocina Tradicional Mexicana",
+            "Taqueria Tesoro",
+            "Dave's Dogs Grill",
+            "JAYDOGZ SB",
+            "Gloria's Gourmet Kitchen",
+            "Broad Street Oyster Company",
+            "Eureka!",
+            "The Cruisery",
+            "Saint Remy",
+            "milk & honey",
+            "Roy",
+            "Silvers Omakase",
+            "SB Biergarten",
+            "Dargan's Irish Pub",
+            "The Pickle Room",
+            "Rodeo Room",
+            "Food for my Soul",
+            "Rasta Rita Margarita and Beverage Truck",
+            "Welcome Coffee Cart"
+        ];
+
+        document.getElementById("randomBtn").addEventListener("click", function() {
+            const btn = document.getElementById("randomBtn");
             
-            // 1. PASTE YOUR PUBLISHED LAYER REST URL HERE
-            const layer = new FeatureLayer({
-                url: "https://services.arcgis.com/KkJhFbLnXVqahKz2/arcgis/rest/services/Late_Night_Locator_Locations/FeatureServer" 
-            });
-
-            document.getElementById("randomBtn").addEventListener("click", function() {
-                // Change text to show it's "thinking"
-                document.getElementById("randomBtn").innerText = "Rolling the dice... 🎲";
-
-                // Query to get the total count of restaurants
-                layer.queryFeatureCount().then(function(count) {
-                    if (count === 0) {
-                        document.getElementById("randomBtn").innerText = "No restaurants found!";
-                        return;
-                    }
-
-                    const randomIndex = Math.floor(Math.random() * count);
-                    
-                    // Query again to get that specific random feature
-                    const query = layer.createQuery();
-                    query.start = randomIndex;
-                    query.num = 1; // get exactly 1 record
-                    query.outFields = ["Name", "Food_Style"]; // Make sure these match your CSV column names exactly
-                    
-                    layer.queryFeatures(query).then(function(results) {
-                        if (results.features.length > 0) {
-                            const feature = results.features[0];
-                            const name = feature.attributes.Name;
-                            
-                            // Update the button text with the winning restaurant!
-                            document.getElementById("randomBtn").innerText = `Let's go to: ${name}!`;
-                            
-                            // Optional: Send data back to Experience Builder
-                            // window.parent.postMessage({ action: "zoom", restaurant: name }, "*");
-                        }
-                    }).catch(function(error){
-                        console.error("Error fetching feature: ", error);
-                        document.getElementById("randomBtn").innerText = "Error picking a place!";
-                    });
-                }).catch(function(error){
-                    console.error("Error querying count: ", error);
-                    document.getElementById("randomBtn").innerText = "Check REST URL!";
-                });
-            });
+            // Temporary loading text for suspense
+            btn.innerText = "Rolling the dice... 🎲";
+            
+            // Wait half a second, then pick a random restaurant
+            setTimeout(function() {
+                const randomIndex = Math.floor(Math.random() * restaurants.length);
+                const selectedRestaurant = restaurants[randomIndex];
+                
+                // Update the button text with the winning restaurant
+                btn.innerText = `Let's go to: ${selectedRestaurant}!`;
+                
+                // (Optional) Send this to Experience Builder if you are listening for widget triggers
+                // window.parent.postMessage({ action: "random_pick", restaurant: selectedRestaurant }, "*");
+                
+            }, 500); 
         });
     </script>
 </body>
